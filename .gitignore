@@ -1,0 +1,10 @@
+.DS_Store
+.idea
+.vs
+*.log
+tmp/
+build/*
+.cache
+*.sublime-project
+*.sublime-workspace
+CMakeSettings.json
