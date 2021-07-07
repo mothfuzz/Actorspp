@@ -2,8 +2,8 @@ from actors import *
 import math
 import random
 
-from .inventory import Inventory, Item, ItemPickupQueue, ClickQueue, ClickEvent
-from .collision import Collider, move
+from scripts.inventory import Inventory, Item, ItemPickupQueue, ClickQueue, ClickEvent
+from scripts.collision import Collider, move
 
 class Block(Collider):
     def __init__(self):
