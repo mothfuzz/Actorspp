@@ -2,6 +2,7 @@
 .idea
 .vs
 *.log
+__pycache__
 tmp/
 build/*
 vcpkg/
