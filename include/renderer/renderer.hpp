@@ -9,6 +9,8 @@
 
 #include "components.hpp"
 
+#include <map>
+
 
 struct Camera {};
 
@@ -17,8 +19,8 @@ struct Light {
 };
 
 struct Transform {
-    glm::vec3 position;
-    glm::vec3 rotation;
+    glm::vec3 position = {0.0f, 0.0f, 0.0f};
+    glm::vec3 rotation = {0.0f, 0.0f, 0.0f};
     glm::vec3 scale = {1.0f, 1.0f, 1.0f};
 };
 #define TRANSFORM_ORIGIN {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f}}
@@ -29,14 +31,14 @@ struct Model {
 
 struct Sprite {
     std::string texture;
-    float width;
-    float height;
+    float width = 0;
+    float height = 0;
     struct ClipRect {
         float x;
         float y;
         float w;
         float h;
-    } clip_rect;
+    } clip_rect = {0, 0, 0, 0};
 };
 
 #define DEFAULT_VERTEX_SHADER "basic100.vert"
@@ -85,24 +87,24 @@ class Renderer {
 
                 glGenBuffers(1, &sprite_vbo_clip_rect);
                 glBindBuffer(GL_ARRAY_BUFFER, sprite_vbo_clip_rect);
-                glEnableVertexAttribArray(1);
-                glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(glm::vec4), 0);
-                glVertexAttribDivisor(1, 1);
+                glEnableVertexAttribArray(4);
+                glVertexAttribPointer(4, 4, GL_FLOAT, false, 0, 0);
+                glVertexAttribDivisor(4, 1);
 
                 glGenBuffers(1, &sprite_vbo_mvp);
                 glBindBuffer(GL_ARRAY_BUFFER, sprite_vbo_mvp);
-                glEnableVertexAttribArray(2);
-                glVertexAttribPointer(2, 4, GL_FLOAT, false, 4*sizeof(glm::vec4), (void*)(0 * sizeof(glm::vec4)));
-                glVertexAttribDivisor(2, 1);
-                glEnableVertexAttribArray(3);
-                glVertexAttribPointer(3, 4, GL_FLOAT, false, 4*sizeof(glm::vec4), (void*)(1 * sizeof(glm::vec4)));
-                glVertexAttribDivisor(3, 1);
-                glEnableVertexAttribArray(4);
-                glVertexAttribPointer(4, 4, GL_FLOAT, false, 4*sizeof(glm::vec4), (void*)(2 * sizeof(glm::vec4)));
-                glVertexAttribDivisor(4, 1);
                 glEnableVertexAttribArray(5);
-                glVertexAttribPointer(5, 4, GL_FLOAT, false, 4*sizeof(glm::vec4), (void*)(3 * sizeof(glm::vec4)));
+                glVertexAttribPointer(5, 4, GL_FLOAT, false, sizeof(glm::mat4), (void*)(0 * sizeof(glm::vec4)));
                 glVertexAttribDivisor(5, 1);
+                glEnableVertexAttribArray(6);
+                glVertexAttribPointer(6, 4, GL_FLOAT, false, sizeof(glm::mat4), (void*)(1 * sizeof(glm::vec4)));
+                glVertexAttribDivisor(6, 1);
+                glEnableVertexAttribArray(7);
+                glVertexAttribPointer(7, 4, GL_FLOAT, false, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+                glVertexAttribDivisor(7, 1);
+                glEnableVertexAttribArray(8);
+                glVertexAttribPointer(8, 4, GL_FLOAT, false, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+                glVertexAttribDivisor(8, 1);
 
                 glBindVertexArray(0);
             }
@@ -175,7 +177,6 @@ class Renderer {
         }
 
         void render_sprites(glm::mat4& view, glm::mat4& proj, bool use_ortho=false) {
-
             std::unordered_map<std::string, std::vector<int>> normal_sprites; //sorted by texture
             std::vector<int> material_sprites; //have special materials, require extra state changes
 
@@ -198,7 +199,7 @@ class Renderer {
                 shader.bind();
                 shader.attach_texture("sprite", tex);
                 draw_sprite_instanced(sprites, tex_w, tex_h, shader, view, proj);
-                //shader.unbind();
+                shader.unbind();
             }
             for (int id : material_sprites) {
                 Sprite* s = Component<Sprite>::entry(id);
@@ -215,7 +216,7 @@ class Renderer {
                 }
                 std::vector<int> ids = { id };
                 draw_sprite_instanced(ids, tex_w, tex_h, shader, view, proj);
-                //shader.unbind();
+                shader.unbind();
             }
             //glBindVertexArray(0);
         }
@@ -255,9 +256,7 @@ class Renderer {
                 shader.set_uniform("camera_position", camera_pos);
                 //shader.set_uniform("reflective", true);
 
-                std::vector<glm::mat4> MVPs;
                 std::vector<glm::mat4> models;
-                std::vector<glm::mat3> model_normals;
                 for (int id : ids) {
                     Transform* t = Component<Transform>::entry(id);
                     models.push_back(prepare_model_transform(t));
@@ -266,7 +265,7 @@ class Renderer {
                 //std::cout << "drawing " << models.size() << " of " << mesh << std::endl;
                 ResourceManager::mesh(mesh).draw_instanced(models, view, proj);
 
-                //shader.unbind();
+                shader.unbind();
             }
 
             for (int id : material_models) {
@@ -289,7 +288,7 @@ class Renderer {
                 std::vector<glm::mat4> model = { prepare_model_transform(t) };
                 ResourceManager::mesh(m->mesh).draw_instanced(model, view, proj);
 
-                //shader.unbind();
+                shader.unbind();
             }
         }
 
@@ -308,7 +307,7 @@ class Renderer {
             if(use_ortho) {
                 view = glm::identity<glm::mat4>();
                 view = glm::translate(view, glm::vec3(-camera_pos.x, -camera_pos.y, 0.0f));
-                //view = glm::scale(view, glm::vec3(2.0f, 2.0f, 1.0f)); //zoom factor
+                //view = glm::scale(view, glm::vec3(2.0f, 2.0f, 1.0f)); //zoom factor?
                 proj = ortho;
             } else {
                 view = glm::lookAt(camera_pos, camera_pos + glm::vec3{1.0f * sin(camera_t->rotation.y), 0.0f, -1.0f*cos(camera_t->rotation.y)},

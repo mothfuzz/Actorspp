@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <vector>
+#include <algorithm>
 
 template<typename T>
 class Component {

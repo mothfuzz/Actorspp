@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include <array>
 
 #include <glm/glm.hpp>
 
@@ -70,10 +71,15 @@ class Shader {
             }
 
             id = glCreateProgram();
+            //this is the standard layout.
             glBindAttribLocation(id, 0, "vertex");
             glBindAttribLocation(id, 1, "texcoord");
             glBindAttribLocation(id, 2, "normal");
             glBindAttribLocation(id, 3, "tangent");
+            glBindAttribLocation(id, 4, "clip_rect");
+            glBindAttribLocation(id, 5, "MVP");
+            glBindAttribLocation(id, 9, "model");
+            glBindAttribLocation(id, 13, "model_normal");
             glAttachShader(id, vert);
             glAttachShader(id, frag);
             glLinkProgram(id);
@@ -205,6 +211,7 @@ class Shader {
             } else {
                 texture.bind(assigned_textures[name]);
             }
+            //std::cout << "binding uniform name "<<name<<" to texture unit "<<assigned_textures[name]<<std::endl;
             set_uniform(name, static_cast<signed int>(assigned_textures[name]));
         }
 

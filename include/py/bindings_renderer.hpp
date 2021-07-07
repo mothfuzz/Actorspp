@@ -2,8 +2,10 @@
 #define __BINDINGS_RENDERER_H_
 
 #include <pybind11/embed.h> // everything needed for embedding
+#include <pybind11/pytypes.h>
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
+#include <pybind11/operators.h>
 namespace py = pybind11;
 
 #include "renderer.hpp"
@@ -70,18 +72,54 @@ inline void py_bind_renderer(py::module& m) {
     py::class_<glm::vec2>(m, "vec2")
         .def(py::init<float, float>())
         .def_readwrite("x", &glm::vec2::x)
-        .def_readwrite("y", &glm::vec2::y);
+        .def_readwrite("y", &glm::vec2::y)
+        .def(py::self + py::self)
+        .def(py::self - py::self)
+        .def(py::self * py::self)
+        .def(py::self / py::self)
+        .def(py::self * float())
+        .def(py::self / float())
+        .def(float() * py::self)
+        .def(float() / py::self);
     py::class_<glm::vec3>(m, "vec3")
         .def(py::init<float, float, float>())
         .def_readwrite("x", &glm::vec3::x)
         .def_readwrite("y", &glm::vec3::y)
-        .def_readwrite("z", &glm::vec3::z);
+        .def_readwrite("z", &glm::vec3::z)
+        .def(py::self + py::self)
+        .def(py::self - py::self)
+        .def(py::self * py::self)
+        .def(py::self / py::self)
+        .def(py::self * float())
+        .def(py::self / float())
+        .def(float() * py::self)
+        .def(float() / py::self);
     py::class_<glm::vec4>(m, "vec4")
         .def(py::init<float, float, float, float>())
         .def_readwrite("x", &glm::vec4::x)
         .def_readwrite("y", &glm::vec4::y)
         .def_readwrite("z", &glm::vec4::z)
-        .def_readwrite("w", &glm::vec4::w);
+        .def_readwrite("w", &glm::vec4::w)
+        .def(py::self + py::self)
+        .def(py::self - py::self)
+        .def(py::self * py::self)
+        .def(py::self / py::self)
+        .def(py::self * float())
+        .def(py::self / float())
+        .def(float() * py::self)
+        .def(float() / py::self);
+    m.def("length", &glm::length<2, float, glm::packed_highp>);
+    m.def("length", &glm::length<3, float, glm::packed_highp>);
+    m.def("length", &glm::length<4, float, glm::packed_highp>);
+    m.def("dot", &glm::dot<2, float, glm::packed_highp>);
+    m.def("dot", &glm::dot<3, float, glm::packed_highp>);
+    m.def("dot", &glm::dot<4, float, glm::packed_highp>);
+    m.def("normalize", &glm::normalize<2, float, glm::packed_highp>);
+    m.def("normalize", &glm::normalize<3, float, glm::packed_highp>);
+    m.def("normalize", &glm::normalize<4, float, glm::packed_highp>);
+    m.def("distance", &glm::distance<2, float, glm::packed_highp>);
+    m.def("distance", &glm::distance<3, float, glm::packed_highp>);
+    m.def("distance", &glm::distance<4, float, glm::packed_highp>);
     py::class_<Transform>(m, "Transform")
         .def(py::init<>())
         .def_readwrite("position", &Transform::position)

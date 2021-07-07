@@ -138,45 +138,45 @@ public:
 
             glGenBuffers(1, &vbo_MVP);
             glBindBuffer(GL_ARRAY_BUFFER, vbo_MVP);
-            glEnableVertexAttribArray(4);
-            glVertexAttribPointer(4, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(0 * sizeof(glm::vec4)));
-            glVertexAttribDivisor(4, 1);
             glEnableVertexAttribArray(5);
-            glVertexAttribPointer(5, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(1 * sizeof(glm::vec4)));
+            glVertexAttribPointer(5, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(0 * sizeof(glm::vec4)));
             glVertexAttribDivisor(5, 1);
             glEnableVertexAttribArray(6);
-            glVertexAttribPointer(6, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(2 * sizeof(glm::vec4)));
+            glVertexAttribPointer(6, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(1 * sizeof(glm::vec4)));
             glVertexAttribDivisor(6, 1);
             glEnableVertexAttribArray(7);
-            glVertexAttribPointer(7, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(3 * sizeof(glm::vec4)));
+            glVertexAttribPointer(7, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(2 * sizeof(glm::vec4)));
             glVertexAttribDivisor(7, 1);
+            glEnableVertexAttribArray(8);
+            glVertexAttribPointer(8, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(3 * sizeof(glm::vec4)));
+            glVertexAttribDivisor(8, 1);
 
             glGenBuffers(1, &vbo_model);
             glBindBuffer(GL_ARRAY_BUFFER, vbo_model);
-            glEnableVertexAttribArray(8);
-            glVertexAttribPointer(8, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(0 * sizeof(glm::vec4)));
-            glVertexAttribDivisor(8, 1);
             glEnableVertexAttribArray(9);
-            glVertexAttribPointer(9, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(1 * sizeof(glm::vec4)));
+            glVertexAttribPointer(9, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(0 * sizeof(glm::vec4)));
             glVertexAttribDivisor(9, 1);
             glEnableVertexAttribArray(10);
-            glVertexAttribPointer(10, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(2 * sizeof(glm::vec4)));
+            glVertexAttribPointer(10, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(1 * sizeof(glm::vec4)));
             glVertexAttribDivisor(10, 1);
             glEnableVertexAttribArray(11);
-            glVertexAttribPointer(11, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(3 * sizeof(glm::vec4)));
+            glVertexAttribPointer(11, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(2 * sizeof(glm::vec4)));
             glVertexAttribDivisor(11, 1);
+            glEnableVertexAttribArray(12);
+            glVertexAttribPointer(12, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(3 * sizeof(glm::vec4)));
+            glVertexAttribDivisor(12, 1);
 
             glGenBuffers(1, &vbo_model_normal);
             glBindBuffer(GL_ARRAY_BUFFER, vbo_model_normal);
-            glEnableVertexAttribArray(12);
-            glVertexAttribPointer(12, 3, GL_FLOAT, false, 3 * sizeof(glm::vec3), (void*)(0 * sizeof(glm::vec3)));
-            glVertexAttribDivisor(12, 1);
             glEnableVertexAttribArray(13);
-            glVertexAttribPointer(13, 3, GL_FLOAT, false, 3 * sizeof(glm::vec3), (void*)(1 * sizeof(glm::vec3)));
+            glVertexAttribPointer(13, 3, GL_FLOAT, false, 3 * sizeof(glm::vec3), (void*)(0 * sizeof(glm::vec3)));
             glVertexAttribDivisor(13, 1);
             glEnableVertexAttribArray(14);
-            glVertexAttribPointer(14, 3, GL_FLOAT, false, 3 * sizeof(glm::vec3), (void*)(2 * sizeof(glm::vec3)));
+            glVertexAttribPointer(14, 3, GL_FLOAT, false, 3 * sizeof(glm::vec3), (void*)(1 * sizeof(glm::vec3)));
             glVertexAttribDivisor(14, 1);
+            glEnableVertexAttribArray(15);
+            glVertexAttribPointer(15, 3, GL_FLOAT, false, 3 * sizeof(glm::vec3), (void*)(2 * sizeof(glm::vec3)));
+            glVertexAttribDivisor(15, 1);
 
             glBindVertexArray(0);
         }

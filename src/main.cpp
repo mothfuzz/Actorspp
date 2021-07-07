@@ -9,32 +9,7 @@
 
 #include "player.hpp"
 
-
-//TODO: drag in ur renderer from uhhhh newstuff I think?? the nice 2d/3d one with shaders and stuff.
-
-/*
-** actual entities:
-** model
-** sprite
-** transform
-** rigidbody
-** material (non-default)
-** camera
-** light
-** resources:
-** shader
-** texture
-** mesh
-** non-entity-objects:
-** framebuffer
-** services:
-** renderer -
-** set active framebuffer
-** set active camera
-** draw model set
-** draw sprite set
-**
-*/
+#include "stress_tests.hpp"
 
 class Player3D: public Actor {
 
@@ -79,7 +54,6 @@ void normal_main_loop() {
     Renderer ren;
 
     PyVM vm;
-    vm.load_file("../scripts/test.py");
 
     while (win.poll_events()) {
         if (Window::is_key_down("escape")) {
@@ -96,6 +70,8 @@ void normal_main_loop() {
 int main(int argc, char *argv[]) {
 
     normal_main_loop();
+    //stress_test_gl();
+    //stress_test_sdl2();
 
     return 0;
 }

@@ -26,5 +26,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE glad::glad)
 find_package(glm CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)
 #python
+#find_package(Python3 COMPONENTS Development REQUIRED)
+#target_link_libraries(${PROJECT_NAME} PRIVATE Python3::Python)
 find_package(pybind11 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE pybind11::embed)

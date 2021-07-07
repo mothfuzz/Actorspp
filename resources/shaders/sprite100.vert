@@ -11,6 +11,7 @@ varying vec2 frag_texcoord;
 
 void main() {
     gl_Position = MVP * vec4(vertex, 1.0);
+
     float u = vertex.x + 0.5;
     float v = -vertex.y + 0.5;
     if(u == 0.0) {

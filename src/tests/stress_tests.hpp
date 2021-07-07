@@ -14,13 +14,13 @@ static int Y_MIN = -1080 / 2;
 static int Y_MAX = 1080 / 2;
 
 class StressTest : public Actor {
-    //Component<Sprite> spr = {id, {"player.png", 16, 16}};
-    Component<Model> m = { id, {"cube.obj"} };
+    Component<Sprite> spr = {id, {"player.png"}};
+    /*Component<Model> m = { id, {"cube.obj"} };
     Component<Material> mat = { id, {DEFAULT_SHADER, {
         {ALBEDO_TEX, "stonewall/albedo.jpg"},
         {NORMAL_TEX, "stonewall/normal.jpg"},
         {GLOSSY_TEX, "stonewall/roughness.jpg"}
-    }} };
+    }} };*/
     Component<Transform> t = { id, TRANSFORM_ORIGIN };
     float speed = 4.0f;
     inline static std::function<int(void)> rand_wall = std::bind(std::uniform_int_distribution<int>{1, 4}, rng);
@@ -53,7 +53,7 @@ class StressTest : public Actor {
     }
 public:
     StressTest() {
-        t->scale = { 32.0f, 32.0f, 32.0f };
+        //t->scale = { 32.0f, 32.0f, 32.0f };
         reinit();
     }
     void update() override {
@@ -67,7 +67,7 @@ public:
     }
 };
 
-#define NUM_BOYS 10000
+#define NUM_BOYS 1000
 
 inline void stress_test_sdl2() {
     SDL_Init(SDL_INIT_EVERYTHING);

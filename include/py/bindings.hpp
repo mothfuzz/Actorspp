@@ -35,7 +35,10 @@ class PyVM {
     py::scoped_interpreter vm;
     public:
     PyVM() {
+        py::module sys = py::module::import("sys");
+        sys.attr("path").attr("insert")(1, "../");
         py::eval_file("../include/py/lib.py");
+        py::module_::import("scripts");
     }
     void load_file(std::string filename) {
         try {
