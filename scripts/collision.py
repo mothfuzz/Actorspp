@@ -20,6 +20,7 @@ def project(points, axis):
     dots = [dot(p, axis) for p in points]
     return min(dots), max(dots)
 
+#calculates the overlap between a pair of 1d ranges
 def overlap(amin, amax, bmin, bmax):
     mx = min(amax, bmax)
     mn = max(amin, bmin)
@@ -28,7 +29,8 @@ def overlap(amin, amax, bmin, bmax):
     else:
         return mx - mn
 
-def move(sprite, transform, translation, map_actors):
+#moves a sprite against a series of polygons utilizing Separating Axis Theorem
+def move_sat(sprite, transform, translation, map_actors):
 
     #perform initial movement
     transform().position.x += translation.x
@@ -88,3 +90,32 @@ def move(sprite, transform, translation, map_actors):
                 min_vector = min_vector * float(-1.0)
             transform().position.x -= min_vector.x
             transform().position.y -= min_vector.y
+
+#distance from a point p to a line (l1, l2)
+def line_distance(p, l1, l2):
+	t = (l2.x-l1.x)*(l1.y-p.y) - (l1.x-p.x)*(l2.y-l1.y)
+	return abs(t)/distance(l1, l2)
+
+#moves a bounding sphere against arbitrary planes
+#bounding sphere plane. not binary space partition
+def move_bsp2(transform, radius, velocity, map_actors):
+    pos = vec2(transform().position.x+velocity.x, transform().position.y+velocity.y)
+    #preprocess colliders and convert them into planes
+    planes = []
+    for collider in filter(lambda a: issubclass(type(a), Collider), map_actors):
+        poly = collider.polygon
+        ppos = vec2(collider.transform().position.x, collider.transform().position.y)
+        for edge in zip(poly, poly[1:] + poly[:1]):
+            (p1, p2) = edge
+            planes.append([p1+ppos, p2+ppos])
+    for p in planes:
+        radp = distance(p[0], p[1])/2.0
+        midp = (p[0] + p[1])/2.0
+        if (pos.x-midp.x)**2 + (pos.y-midp.y)**2 <= (radius+radp)**2:
+            ldist = line_distance(pos, p[0], p[1])
+            if ldist < radius:
+                n = normalize(perpendicular(p[1] - p[0]))
+                adj = n * dot(velocity, n)
+                velocity.x -= adj.x
+                velocity.y -= adj.y
+    return velocity

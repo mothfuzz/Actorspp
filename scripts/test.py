@@ -3,7 +3,7 @@ import math
 import random
 
 from scripts.inventory import Inventory, Item, ItemPickupQueue, ClickQueue, ClickEvent
-from scripts.collision import Collider, move
+from scripts.collision import Collider, move_sat, move_bsp2
 
 class Block(Collider):
     def __init__(self):
@@ -71,7 +71,7 @@ class TestActor(Actor):
     
     def __init__(self):
         Actor.__init__(self)
-        self.sprite = Component(self.id, Sprite("otherguy.png"))
+        self.sprite = Component(self.id, Sprite("player.png"))
         self.transform = Component(self.id, Transform())
         self.inventory = Inventory(5)
         self.item_pickups = ItemPickupQueue(self.id)
@@ -80,20 +80,37 @@ class TestActor(Actor):
         self.left_mouse_clicked = Window.track_click(1)
         self.right_mouse_clicked = Window.track_click(3)
 
+        self.velocity = vec2(0, 0)
+        self.max_speed = 4
+
     def update(self):
-        speed = 4
         if Window.is_key_down("s"):
-            move(self.sprite, self.transform, vec2(0, -speed), map_actors)
+            self.velocity.y -= 0.2
             self.transform().rotation.z = 270
         if Window.is_key_down("w"):
-            move(self.sprite, self.transform, vec2(0, speed), map_actors)
+            self.velocity.y += 0.2
             self.transform().rotation.z = 90
         if Window.is_key_down("a"):
-            move(self.sprite, self.transform, vec2(-speed, 0), map_actors)
+            self.velocity.x -= 0.2
             self.transform().rotation.z = 180
         if Window.is_key_down("d"):
-            move(self.sprite, self.transform, vec2(speed, 0), map_actors)
+            self.velocity.x += 0.2
             self.transform().rotation.z = 0
+
+        if self.velocity.x < -self.max_speed:
+            self.velocity.x = -self.max_speed
+        if self.velocity.x > self.max_speed:
+            self.velocity.x = self.max_speed
+        if self.velocity.y < -self.max_speed:
+            self.velocity.y = -self.max_speed
+        if self.velocity.y > self.max_speed:
+            self.velocity.y = self.max_speed
+        
+        move_sat(self.sprite, self.transform, self.velocity, map_actors)
+        
+        #self.velocity = move_bsp2(self.transform, 16, self.velocity, map_actors)
+        #self.transform().position.x += self.velocity.x
+        #self.transform().position.y += self.velocity.y
 
         if self.inventory_clicked():
             self.show_inventory = not self.show_inventory
