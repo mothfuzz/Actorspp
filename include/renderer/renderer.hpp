@@ -12,7 +12,19 @@
 #include <map>
 
 
-struct Camera {};
+struct Camera {
+    static int active_camera_id;
+    void set_active() {
+        for (int id: Component<Camera>::keys()) {
+            Camera* cam = Component<Camera>::entry(id);
+            if (cam == this) {
+                active_camera_id = id;
+                break;
+            }
+        }
+    }
+};
+int Camera::active_camera_id = 0;
 
 struct Light {
     glm::vec3 color = { 1.0f, 1.0f, 1.0f };
@@ -56,7 +68,6 @@ struct Material {
 
 //Kay's wonderful auto-batching and auto-instancing 2D & 3D combined renderer
 class Renderer {
-    int active_camera_id = 0;
     glm::mat4 persp;
     glm::mat4 ortho;
     float z_2D = 0.0f;
@@ -298,7 +309,7 @@ class Renderer {
 
             Transform default_camera_t = {{0.0f, 0.0f, z_2D}, {0.0, 0.0, 0.0f}, {1.0f, 1.0f, 1.0f}};
             Transform *camera_t = nullptr;
-            if(!active_camera_id || !(camera_t = Component<Transform>::entry(active_camera_id))) {
+            if(!Camera::active_camera_id || !(camera_t = Component<Transform>::entry(Camera::active_camera_id))) {
                 camera_t = &default_camera_t;
             }
 

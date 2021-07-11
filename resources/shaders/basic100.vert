@@ -20,6 +20,11 @@ varying vec3 frag_tangent;
 varying vec3 frag_bitangent;
 varying mat3 TBN;
 
+uniform vec3 camera_position;
+
+varying vec3 light_direction;
+varying vec3 cam_direction;
+
 void main() {
     gl_Position = MVP * vec4(vertex, 1.0);
     frag_position = vec3(model * vec4(vertex, 1.0));
@@ -37,4 +42,9 @@ void main() {
     TBN = mat3(vec3(basis[0].x, basis[1].x, basis[2].x),
                vec3(basis[0].y, basis[1].y, basis[2].y),
                vec3(basis[0].z, basis[1].z, basis[2].z));
+
+    vec3 light_pos = camera_position;//vec3(0.0, 0.0, 0.0);
+    light_direction = TBN * (light_pos - frag_position);
+    cam_direction = TBN * (camera_position - frag_position);
+    frag_position = TBN * frag_position;
 }

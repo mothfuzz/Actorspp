@@ -29,6 +29,9 @@ inline void py_bind_renderer(py::module& m) {
         .def_static("get_width", &Window::get_width)
         .def_static("get_height", &Window::get_height);
 
+    py::class_<Camera>(m, "Camera")
+        .def(py::init<>())
+        .def("set_active", &Camera::set_active);
 
     py::class_<Model>(m, "Model")
         .def(py::init<std::string>())
@@ -68,6 +71,9 @@ inline void py_bind_renderer(py::module& m) {
     py::class_<Component<Transform>>(m, "TransformComponent")
         .def(py::init<int, Transform>())
         .def("__call__", &Component<Transform>::operator(), py::return_value_policy::reference);
+    py::class_<Component<Camera>>(m, "CameraComponent")
+        .def(py::init<int, Camera>())
+        .def("__call__", &Component<Camera>::operator(), py::return_value_policy::reference);
 
     py::class_<glm::vec2>(m, "vec2")
         .def(py::init<float, float>())
@@ -75,6 +81,8 @@ inline void py_bind_renderer(py::module& m) {
         .def_readwrite("y", &glm::vec2::y)
         .def(py::self + py::self)
         .def(py::self - py::self)
+        .def(py::self += py::self)
+        .def(py::self -= py::self)
         .def(py::self * py::self)
         .def(py::self / py::self)
         .def(py::self * float())
@@ -88,6 +96,8 @@ inline void py_bind_renderer(py::module& m) {
         .def_readwrite("z", &glm::vec3::z)
         .def(py::self + py::self)
         .def(py::self - py::self)
+        .def(py::self += py::self)
+        .def(py::self -= py::self)
         .def(py::self * py::self)
         .def(py::self / py::self)
         .def(py::self * float())
@@ -102,6 +112,8 @@ inline void py_bind_renderer(py::module& m) {
         .def_readwrite("w", &glm::vec4::w)
         .def(py::self + py::self)
         .def(py::self - py::self)
+        .def(py::self += py::self)
+        .def(py::self -= py::self)
         .def(py::self * py::self)
         .def(py::self / py::self)
         .def(py::self * float())

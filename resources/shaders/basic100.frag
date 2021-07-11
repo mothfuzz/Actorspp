@@ -6,9 +6,10 @@ varying vec3 frag_position;
 varying vec2 frag_texcoord;
 varying vec3 frag_normal;
 varying vec3 frag_tangent;
-varying mat3 TBN;
+//varying mat3 TBN;
 
-uniform vec3 camera_position;
+varying vec3 light_direction;
+varying vec3 cam_direction;
 
 uniform sampler2D albedo_tex;
 uniform sampler2D normal_tex;
@@ -16,11 +17,10 @@ uniform sampler2D glossy_tex;
 
 uniform bool reflective;
 
+
 void main() {
-    vec3 light_pos = vec3(0.0, 0.0, 1000.0);
+
     vec3 light_color = vec3(1, 1, 1);
-    vec3 light_direction = normalize(light_pos - frag_position);
-    vec3 cam_direction = normalize(camera_position - frag_position);
 
     //can have specular, shininess, and iridescence in one texture! shininess = grayscale average of specular color.
     vec4 gloss = texture2D(glossy_tex, frag_texcoord);
@@ -37,10 +37,10 @@ void main() {
     //vec3 l = light_direction;
 
     vec3 n = normalize(texture2D(normal_tex, frag_texcoord).xyz * 2.0 - 1.0); //0.0-1.0 -> -1.0-1.0
-    vec3 l = normalize(TBN * light_direction);
+    vec3 l = normalize(light_direction);
 
     vec3 h = reflect(-l, n);
-    vec3 v = normalize(TBN * cam_direction);
+    vec3 v = normalize(cam_direction);
 
     //shade
     float ambient = 0.3;

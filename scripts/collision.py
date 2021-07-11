@@ -2,7 +2,7 @@ from actors import *
 import math
 
 """base class for any type of polygonal colliding object"""
-class Collider(Actor):
+class PolygonCollider(Actor):
     def __init__(self):
         Actor.__init__(self)
         self.polygon = []
@@ -37,7 +37,7 @@ def move_sat(sprite, transform, translation, map_actors):
     transform().position.y += translation.y
 
     #block out of all colliders
-    for collider in filter(lambda a: issubclass(type(a), Collider), map_actors):
+    for collider in filter(lambda a: issubclass(type(a), PolygonCollider), map_actors):
 
         #for pushing out
         min_overlap = float("inf")
@@ -102,7 +102,7 @@ def move_bsp2(transform, radius, velocity, map_actors):
     pos = vec2(transform().position.x+velocity.x, transform().position.y+velocity.y)
     #preprocess colliders and convert them into planes
     planes = []
-    for collider in filter(lambda a: issubclass(type(a), Collider), map_actors):
+    for collider in filter(lambda a: issubclass(type(a), PolygonCollider), map_actors):
         poly = collider.polygon
         ppos = vec2(collider.transform().position.x, collider.transform().position.y)
         for edge in zip(poly, poly[1:] + poly[:1]):
@@ -118,4 +118,34 @@ def move_bsp2(transform, radius, velocity, map_actors):
                 adj = n * dot(velocity, n)
                 velocity.x -= adj.x
                 velocity.y -= adj.y
+    return velocity
+
+#moves a bounding sphere against a series of walls
+def move_bsp3(transform, radius, velocity, wall_actors):
+    for wa in wall_actors:
+        pos = transform().position + velocity
+        ppos = wa.transform().position
+        #get vector from point to plane
+        dist = pos - ppos
+        #project it onto normal (assumed to be normalized already)
+        #this gives us a vector from the point perpendicular to the plane
+        #the length of which is the shortest possible distance
+        v = dot(dist, wa.normal) * wa.normal
+        if length(v) < radius:
+            #find the nearest point on the plane along that vector
+            pp = pos + v
+            #check if the point is actually within the bounds of the plane
+            a = wa.points[0]
+            b = wa.points[1]
+            c = wa.points[2]
+            d = wa.points[3]
+            axis1 = a-b
+            axis2 = a-d
+            p1 = dot(axis1, pp)
+            p2 = dot(axis2, pp)
+            if p1 < dot(axis1, a) and p1 > dot(axis1, b) and p2 < dot(axis2, a) and p2 > dot(axis2, d):
+                #if colliding with a wall, subtract velocity going in the wall's direction
+                #to prevent movement
+                adj = wa.normal * dot(velocity, wa.normal)
+                velocity -= adj
     return velocity
