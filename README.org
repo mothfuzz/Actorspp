@@ -2,6 +2,8 @@
 
 versatile and easy to use actor-based game engine
 
+[[./scrot.png]]
+
 - keeps code simple and clean via actor framework
 - actors are automatically managed so you can focus on game logic
 - fast iteration through pseudo-ECS component system
