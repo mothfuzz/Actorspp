@@ -1,6 +1,8 @@
 #ifndef __BINDINGS_H_
 #define __BINDINGS_H_
 
+#include <SDL2/SDL.h>
+
 #include <vector>
 #include <functional>
 
@@ -36,6 +38,8 @@ class PyVM {
     public:
     PyVM() {
         py::module sys = py::module::import("sys");
+        py::module os = py::module::import("os");
+        std::cout << os.attr("chdir")(SDL_GetBasePath()) << std::endl;
         sys.attr("path").attr("insert")(1, "../");
         py::eval_file("../include/py/lib.py");
         py::module_::import("scripts");

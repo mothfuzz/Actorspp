@@ -1,6 +1,8 @@
 #ifndef __RESOURCE_MANAGER_H_
 #define __RESOURCE_MANAGER_H_
 
+#include <SDL2/SDL.h>
+
 #include <unordered_map>
 #include <stdexcept>
 #include <iostream>
@@ -17,7 +19,7 @@ class ResourceManager {
     std::unordered_map<std::string, Texture*> textures;
     std::unordered_map<std::string, Mesh*> meshes;
 public:
-        ResourceManager(std::string base_path): base_path(base_path) {
+        ResourceManager(std::string base_path): base_path(SDL_GetBasePath() + base_path) {
             if(self == nullptr) {
                 self = this;
             } else {
