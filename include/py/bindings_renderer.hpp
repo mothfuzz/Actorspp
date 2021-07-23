@@ -33,6 +33,10 @@ inline void py_bind_renderer(py::module& m) {
         .def(py::init<>())
         .def("set_active", &Camera::set_active);
 
+    py::class_<Light>(m, "Light")
+        .def(py::init<glm::vec3>())
+        .def_readwrite("color", &Light::color);
+
     py::class_<Model>(m, "Model")
         .def(py::init<std::string>())
         .def_readwrite("mesh", &Model::mesh);
@@ -74,6 +78,9 @@ inline void py_bind_renderer(py::module& m) {
     py::class_<Component<Camera>>(m, "CameraComponent")
         .def(py::init<int, Camera>())
         .def("__call__", &Component<Camera>::operator(), py::return_value_policy::reference);
+    py::class_<Component<Light>>(m, "LightComponent")
+        .def(py::init<int, Light>())
+        .def("__call__", &Component<Light>::operator(), py::return_value_policy::reference);
 
     py::class_<glm::vec2>(m, "vec2")
         .def(py::init<float, float>())

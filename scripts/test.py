@@ -84,8 +84,10 @@ class Player3D(Actor):
         self.transform = Component(self.id, Transform())
         self.transform().position = vec3(0, 0, 0)
         self.camera = Component(self.id, Camera())
-
         self.camera().set_active()
+
+        self.light = Component(self.id, Light(vec3(0.2, 0.2, 0.3)));
+
         self.velocity = vec3(0, 0, 0)
 
     def update(self):
@@ -104,6 +106,8 @@ class Player3D(Actor):
         if Window.is_key_down("d"):
             self.velocity.x += speed * c
             self.velocity.z += speed * s
+        if Window.is_key_down("space"):
+            self.velocity.y += 1.0
         if Window.is_key_down("left"):
             self.transform().rotation.y -= 0.05
         if Window.is_key_down("right"):
@@ -122,3 +126,14 @@ class Player3D(Actor):
         self.transform().position.z += self.velocity.z
 
 p = Player3D()
+
+
+class OtherGuy(Actor):
+    def __init__(self):
+        Actor.__init__(self)
+        self.transform = Component(self.id, Transform())
+        self.sprite = Component(self.id, Sprite("player.png", 32, 32))
+
+g = OtherGuy()
+g.transform().position.x = 128
+g.transform().position.y = -64+32/2

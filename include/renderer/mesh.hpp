@@ -23,6 +23,7 @@ class Mesh {
     GLuint vbo_model;
     GLuint vbo_model_normal;
 public:
+        //TODO: dynamic mesh!! dynamic mesh!! I want my own vertices!!!
         Mesh(std::string filename) {
 
             std::ifstream file(filename);

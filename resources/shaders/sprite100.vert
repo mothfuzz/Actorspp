@@ -6,9 +6,6 @@ attribute mat4 MVP;
 
 varying vec2 frag_texcoord;
 
-//uniform mat4 view;
-//uniform mat4 proj;
-
 void main() {
     gl_Position = MVP * vec4(vertex, 1.0);
 

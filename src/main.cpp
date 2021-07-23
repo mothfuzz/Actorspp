@@ -39,6 +39,7 @@ class Player3D: public Actor {
         }}};
         Component<Transform> t = {id, TRANSFORM_ORIGIN};
         Component<Camera> cam = { id };
+        //Component<Light> l = { id,  {{1.0f, 1.0f, 1.0f}} };
 
         void update() override {
             float speed = 4.0f;
@@ -84,7 +85,7 @@ void normal_main_loop() {
     ResourceManager resource_manager{ "../resources/" };
     Window win;
     Renderer ren;
-    win.set_resolution(320, 240);
+    win.set_resolution(800, 600);
 
     PyVM vm;
 
@@ -92,11 +93,15 @@ void normal_main_loop() {
     //Player3D p;
     //ren.set_active_camera(p);
 
+    Light::set_sun_color(1.0, 1.0, 1.0, 0.2);
+    Light::set_sun_rotation(-45, 0, 45);
+
     while (win.poll_events()) {
         if (Window::is_key_down("escape")) {
             break;
         }
         Actor::update_all();
+        ren.prepass();
         win.clear();
         //do some stuff
         ren.render_all();

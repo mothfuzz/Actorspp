@@ -11,6 +11,7 @@
 
 #include <map>
 
+#include <glm/gtx/rotate_vector.hpp>
 
 struct Camera {
     static int active_camera_id;
@@ -28,6 +29,19 @@ int Camera::active_camera_id = 0;
 
 struct Light {
     glm::vec3 color = { 1.0f, 1.0f, 1.0f };
+    inline static glm::vec4 sun_color = { 1.0f, 1.0f, 1.0f, 0.3f };
+    inline static glm::vec3 sun_direction = { 0.0f, -1.0f, 0.0f };
+    static void set_sun_color(float r, float g, float b, float a) {
+        sun_color = { r, g, b, a };
+    }
+    static void set_sun_rotation(float x, float y, float z) {
+        //:)
+        sun_direction = { 0.0f, -1.0f, 0.0f };
+        sun_direction = glm::rotateX(sun_direction, glm::radians(x));
+        sun_direction = glm::rotateY(sun_direction, glm::radians(y));
+        sun_direction = glm::rotateZ(sun_direction, glm::radians(z));
+        sun_direction = glm::normalize(sun_direction);
+    }
 };
 
 struct Transform {
@@ -67,6 +81,7 @@ struct Material {
 };
 
 //Kay's wonderful auto-batching and auto-instancing 2D & 3D combined renderer
+//TODO: lights list. shadows
 class Renderer {
     glm::mat4 persp;
     glm::mat4 ortho;
@@ -74,16 +89,22 @@ class Renderer {
     inline static GLuint sprite_vao = 0;
     inline static GLuint sprite_vbo_clip_rect = 0;
     inline static GLuint sprite_vbo_mvp = 0;
+    Framebuffer sun_shadows = { 4096, 4096, "framebuffer.frag" };
+    glm::mat4 sun_transform;
+    Transform* active_camera_transform = nullptr;
+    Transform default_camera_transform;
     public:
         Renderer() {
             float width = static_cast<float>(Window::get_width());
             float height = static_cast<float>(Window::get_height());
-            persp = glm::perspective(glm::radians(60.0f), width/height, 0.1f, height*2.0f);
+            persp = glm::perspective(glm::radians(60.0f), width/height, 0.1f, height*4.0f);
             ortho = glm::ortho(0.0f, width, height, 0.0f, -100.0f, 100.0f);
             //ortho = persp;
             if(z_2D == 0.0f) {
                 z_2D = sqrt(pow(Window::get_height(), 2) - pow(Window::get_height()/2.0f, 2));
             }
+            default_camera_transform = { {0.0f, 0.0f, z_2D}, {0.0, 0.0, 0.0f}, {1.0f, 1.0f, 1.0f} };
+            active_camera_transform = &default_camera_transform;
             if(Renderer::sprite_vao == 0) {
                 glGenVertexArrays(1, &sprite_vao);
                 glBindVertexArray(sprite_vao);
@@ -244,6 +265,35 @@ class Renderer {
             return model;
         }
 
+        void attach_standard_uniforms(Shader& bound_shader, glm::vec3& camera_pos) {
+            //camera
+            bound_shader.set_uniform("camera_position", camera_pos);
+            //sun light
+            bound_shader.set_uniform("sun_color", Light::sun_color);
+            bound_shader.set_uniform("sun_direction", -Light::sun_direction);
+            bound_shader.attach_texture("sun_shadows", sun_shadows.depth_texture());
+            bound_shader.set_uniform("sun_transform", sun_transform);
+            //point lights
+            int light_num = 0;
+            for (int id : Component<Light>::keys()) {
+                if (light_num > 8) {
+                    break;
+                }
+                Light* light = Component<Light>::entry(id);
+                Transform* t = Component<Transform>::entry(id);
+                glm::vec3 light_color = light->color;
+                glm::vec3 light_position = { 0.0f, 0.0f, 0.0f };
+                if (t) {
+                    light_position = t->position;
+                }
+                std::string light_uniform = "lights[" + light_num + std::string("]");
+                bound_shader.set_uniform(light_uniform + ".color", light_color);
+                bound_shader.set_uniform(light_uniform + ".position", light_position);
+                light_num++;
+            }
+
+        }
+
         void render_models(glm::mat4& view, glm::mat4& proj, glm::vec3& camera_pos) {
             std::map<std::tuple<std::string, std::string, std::string, std::string>, std::vector<int>> normal_models; //hashed by mesh_id+albedo+normal+glossy
             std::vector<int> material_models;
@@ -264,8 +314,7 @@ class Renderer {
                 shader.attach_texture(ALBEDO_TEX, ResourceManager::texture(albedo_tex));
                 shader.attach_texture(NORMAL_TEX, ResourceManager::texture(normal_tex));
                 shader.attach_texture(GLOSSY_TEX, ResourceManager::texture(glossy_tex));
-                shader.set_uniform("camera_position", camera_pos);
-                //shader.set_uniform("reflective", true);
+                attach_standard_uniforms(shader, camera_pos);
 
                 std::vector<glm::mat4> models;
                 for (int id : ids) {
@@ -295,6 +344,7 @@ class Renderer {
                 else {
                     shader.bind();
                 }
+                attach_standard_uniforms(shader, camera_pos);
 
                 std::vector<glm::mat4> model = { prepare_model_transform(t) };
                 ResourceManager::mesh(m->mesh).draw_instanced(model, view, proj);
@@ -303,17 +353,41 @@ class Renderer {
             }
         }
 
+        void update_sun_shadows() {
+            glm::vec3& camera_pos = active_camera_transform->position;
+            glm::vec3 pos = { 0.0f, 0.0f, 0.0f };
+            glm::mat4 view = glm::lookAt(pos, pos+Light::sun_direction, { 0.0f, 1.0, 0.0 });
+            glm::mat4 proj = glm::ortho(-camera_pos.x-1000.0f, -camera_pos.x+1000.0f, 
+                                        camera_pos.z-1000.0f, camera_pos.z+1000.0f, 
+                                        -1000.0f, 1000.0f);
+            sun_shadows.bind();
+            sun_shadows.clear(0.0f, 1.0f, 0.0f, 1.0f);
+            //draw scene from sun's point of view :3
+            render_models(view, proj, pos);
+            render_sprites(view, proj, false);
+            sun_shadows.unbind();
+            sun_transform = proj * view;
+        }
+
+        void prepass() {
+            //check if active camera switched / disabled
+            if (!Camera::active_camera_id || !(active_camera_transform = Component<Transform>::entry(Camera::active_camera_id))) {
+                active_camera_transform = &default_camera_transform;
+            }
+            //first render shadow map from sun
+            update_sun_shadows();
+            //next we'll do a depth pre-pass, etc. (implemented later)
+        }
+
         void render_all() {
+
+            //sun_shadows.draw(); return;
+
             glm::mat4 view;
             glm::mat4 proj;
 
-            Transform default_camera_t = {{0.0f, 0.0f, z_2D}, {0.0, 0.0, 0.0f}, {1.0f, 1.0f, 1.0f}};
-            Transform *camera_t = nullptr;
-            if(!Camera::active_camera_id || !(camera_t = Component<Transform>::entry(Camera::active_camera_id))) {
-                camera_t = &default_camera_t;
-            }
-
-            glm::vec3 camera_pos = camera_t->position;
+            glm::vec3& camera_pos = active_camera_transform->position;
+            glm::vec3& camera_rot = active_camera_transform->rotation;
             bool use_ortho = false;
             if(use_ortho) {
                 view = glm::identity<glm::mat4>();
@@ -321,7 +395,7 @@ class Renderer {
                 //view = glm::scale(view, glm::vec3(2.0f, 2.0f, 1.0f)); //zoom factor?
                 proj = ortho;
             } else {
-                view = glm::lookAt(camera_pos, camera_pos + glm::vec3{1.0f * sin(camera_t->rotation.y), 0.0f, -1.0f*cos(camera_t->rotation.y)},
+                view = glm::lookAt(camera_pos, camera_pos + glm::vec3{1.0f * sin(camera_rot.y), 0.0f, -1.0f*cos(camera_rot.y)},
                                 glm::vec3{0.0f, 1.0f, 0.0f});
                 proj = persp;
             }
