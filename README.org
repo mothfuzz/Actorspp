@@ -1,0 +1,13 @@
+* Actors++
+
+versatile and easy to use actor-based game engine
+
+- keeps code simple and clean via actor framework
+- actors are automatically managed so you can focus on game logic
+- fast iteration through pseudo-ECS component system
+- python scripting support
+- includes simple 2d/3d renderer
+  - auto-instancing for The Fast
+  - simple normal/specular mapped lighting & shadow mapping for 3d objects
+  - .obj model loading
+  - draws sprites in 3d and meshes in 2d, easy integrated camera & coordinate system

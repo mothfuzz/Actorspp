@@ -81,7 +81,6 @@ struct Material {
 };
 
 //Kay's wonderful auto-batching and auto-instancing 2D & 3D combined renderer
-//TODO: lights list. shadows
 class Renderer {
     glm::mat4 persp;
     glm::mat4 ortho;
