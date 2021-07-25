@@ -14,7 +14,7 @@
 #include <glm/gtx/rotate_vector.hpp>
 
 struct Camera {
-    static int active_camera_id;
+    inline static int active_camera_id = 0;
     void set_active() {
         for (int id: Component<Camera>::keys()) {
             Camera* cam = Component<Camera>::entry(id);
@@ -25,7 +25,6 @@ struct Camera {
         }
     }
 };
-int Camera::active_camera_id = 0;
 
 struct Light {
     glm::vec3 color = { 1.0f, 1.0f, 1.0f };
@@ -285,7 +284,7 @@ class Renderer {
                 if (t) {
                     light_position = t->position;
                 }
-                std::string light_uniform = "lights[" + light_num + std::string("]");
+                std::string light_uniform = "lights[" + std::to_string(light_num) + "]";
                 bound_shader.set_uniform(light_uniform + ".color", light_color);
                 bound_shader.set_uniform(light_uniform + ".position", light_position);
                 light_num++;
